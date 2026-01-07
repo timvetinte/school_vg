@@ -60,6 +60,18 @@ public class View {
         }
     }
 
+    public void printCourseStudents(Course course){
+        if (!course.getClassList().isEmpty()) {
+            for (Student s : course.getClassList()) {
+                System.out.println(index + ". " + s.getFirstName() + " " + s.getLastName());
+                index++;
+            }
+            index = 1;
+        } else {
+            System.out.println("Course is empty, add students.");
+        }
+    }
+
     public void printStudentInfo(Student student) {
         System.out.println("Selected student: " + student.getFirstName() + " " + student.getLastName());
         System.out.println("Student ID: " + student.getStudentID());

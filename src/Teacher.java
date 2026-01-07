@@ -1,6 +1,6 @@
 import java.io.Serializable;
 
-public class Teacher implements Serializable {
+public class Teacher extends Person implements Serializable {
 
     String firstName;
     String lastName;
@@ -22,13 +22,8 @@ public class Teacher implements Serializable {
 
     }
 
-
     public static Teacher createTeacher (String firstName, String lastName, String emailAdress){
         return new Teacher(firstName, lastName, emailAdress);
-    }
-
-    public Teacher(){
-
     }
 
     public String getFirstName() {

@@ -5,7 +5,7 @@ public class Course implements Serializable {
 
     private String courseName;
     private ArrayList<Student> classList;
-    private int courseSize = 20;
+    private int courseSize;
     private Teacher teacher;
 
 
@@ -17,9 +17,10 @@ public class Course implements Serializable {
 
     }
 
-    public boolean addStudent(Student student){
-        if (classList.size()<=courseSize) {
+    public boolean addStudentToCourse(Student student){
+        if (classList.size()<this.getCourseSize()) {
             classList.add(student);
+            System.out.println("THIS WAS ADDED");
             return true;
         } else {
         return false;
@@ -49,5 +50,9 @@ public class Course implements Serializable {
 
     public void setTeacher(Teacher teacher) {
         this.teacher = teacher;
+    }
+
+    public int getCourseSize() {
+        return courseSize;
     }
 }

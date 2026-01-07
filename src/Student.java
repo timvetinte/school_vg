@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Student implements Serializable {
 
@@ -6,6 +7,7 @@ public class Student implements Serializable {
     String lastName;
     String emailAdress;
     int studentID;
+    private ArrayList<Grade> gradeList;
 
     public Student(String firstName, String lastName, String emailAdress, int studentID){
         this.firstName=firstName;
@@ -52,5 +54,9 @@ public class Student implements Serializable {
 
     public void setStudentID(int studentID) {
         this.studentID = studentID;
+    }
+
+    public ArrayList<Grade> getGradeList() {
+        return gradeList;
     }
 }

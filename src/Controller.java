@@ -1,15 +1,20 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Controller {
 
     private Student currentStudent;
     private Teacher currentTeacher;
+    private Teacher currentLogin;
     private Course currentCourse;
     private Model model;
     private View view;
+    private ArrayList<Grade> gradeList;
 
     private enum state {
+        LOGIN,
         MAIN_MENU,
         COURSES,
         ASSIGN_TEACHER_TO_COURSE,
@@ -24,7 +29,7 @@ public class Controller {
         EDITING_STUDENT
     }
 
-    private state currentState = state.MAIN_MENU;
+    private state currentState = state.LOGIN;
 
     Scanner scanner = new Scanner(System.in);
     Scanner scannerString = new Scanner(System.in);
@@ -37,6 +42,7 @@ public class Controller {
     public void run() throws IOException {
         while (true) {
             switch (currentState) {
+                case LOGIN -> login();
                 case MAIN_MENU -> mainMenu();
                 case STUDENTS -> students();
                 case COURSES -> courses();
@@ -53,16 +59,57 @@ public class Controller {
         }
     }
 
+    public int pseudoScanner(){
+        int selection;
+        try{
+            selection = scanner.nextInt();
+        } catch (InputMismatchException e){
+            scanner.nextLine();
+            return 0;
+        }
+        return selection;
+    }
+
+    public void login(){
+        view.printMessage("ADMINISTRATIVE SCHOOL SYSTEM");
+        view.printMessage("Enter email adress: ");
+        String loginEmail = scanner.nextLine();
+        for(Teacher t : model.teacherList){
+            if(loginEmail.equalsIgnoreCase(t.getEmailAdress())){
+                currentLogin = t;
+                while(true) {
+                    view.printMessage("Enter password: ");
+                    String loginPass = scanner.nextLine();
+                    if (currentLogin.getPassword().equals(loginPass)) {
+                        view.printMessage("Successful login!");
+                        view.printMessage("Welcome " + currentLogin.getFirstName());
+                        currentState = state.MAIN_MENU;
+                        return;
+                    } else {
+                        view.printMessage("Wrong password, try again.");
+                    }
+                }
+
+            } else {
+                view.printMessage("Email not found.");
+            }
+        }
+    }
+
     public void mainMenu() {
         view.printMessage("Select one of the numbers below");
-        view.printMessage("1. Students 2. Teachers 3. Courses");
+        view.printMessage("1. Students 2. Teachers 3. Courses 4. Logout");
 
-        int selection = scanner.nextInt();
+        int selection = pseudoScanner();
 
         switch (selection) {
             case 1 -> currentState = state.STUDENTS;
             case 2 -> currentState = state.TEACHERS;
             case 3 -> currentState = state.COURSES;
+            case 4 -> {
+                currentLogin = null;
+                currentState = state.LOGIN;
+            }
             default -> view.printMessage("Not a valid option");
         }
 
@@ -75,7 +122,8 @@ public class Controller {
         int selection;
 
         while (true) {
-            selection = scanner.nextInt();
+                selection = pseudoScanner();
+
             if (selection <= model.courses.size() && selection > 0) {
                 break;
             } else if (selection == (model.courses.size() + 1)) {
@@ -83,21 +131,27 @@ public class Controller {
                 return;
             }
             view.printMessage("Not a valid number, try again");
+            view.printAllCourses(model);
+            view.printMessage("Input a number matching a course or " + (model.courses.size() + 1) + " to exit: ");
         }
 
         currentCourse = model.courses.get(selection - 1);
         view.printCourseInfo(currentCourse);
-        view.printMessage("1. Add student to course 2. Assign teacher 3. Back");
+        view.printMessage("1. Add student to course 2. Assign teacher 3. Grade student 4. Back");
         int selection2;
         while (true) {
-            selection = scanner.nextInt();
+            selection = pseudoScanner();
             switch (selection) {
+                case 0 -> {
+                    view.printCourseInfo(currentCourse);
+                    view.printMessage("1. Add student to course 2. Assign teacher 3. Back");
+                }
                 case 1 -> {
                     view.printAllStudents(model);
                     view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
 
                     while (true) {
-                        selection2 = scanner.nextInt();
+                        selection2 = pseudoScanner();
                         if (selection2 <= model.studentList.size() && selection2 > 0) {
                             break;
                         } else if (selection2 == (model.studentList.size() + 1)) {
@@ -109,7 +163,13 @@ public class Controller {
 
                     }
                     currentStudent = model.studentList.get(selection2 - 1);
-                    currentCourse.getClassList().add(currentStudent);
+                    if (!currentCourse.getClassList().contains(currentStudent)) {
+                        if (!currentCourse.addStudentToCourse(currentStudent)) {
+                            view.printMessage("Class is full.");
+                        }
+                    } else {
+                        view.printMessage("Student already enrolled in course.");
+                    }
                     model.saveList();
                     view.printMessage(currentStudent.getFirstName() + " was added to the " + currentCourse.getCourseName() + " course.");
                     return;
@@ -120,6 +180,26 @@ public class Controller {
                 }
 
                 case 3 -> {
+                    if (currentCourse.getClassList().isEmpty()) {
+                        view.printCourseStudents(currentCourse);
+                    } else {
+                        view.printCourseStudents(currentCourse);
+                        while(true) {
+                            view.printMessage("Input a number matching a student.");
+                            int selection3 = pseudoScanner();
+                            if (selection3 > currentCourse.getClassList().size() && selection3 > 0) {
+                                currentStudent = currentCourse.getClassList().get(selection3 - 1);
+                                view.printMessage("Enter " + currentStudent.getFirstName() + "'s grade.");
+                                String grade = scanner.nextLine();
+                                model.gradeList.add(new Grade(currentStudent, grade, currentCourse));
+                            } else {
+                                view.printMessage("Not a valid option.");
+                            }
+                        }
+                    }
+                }
+
+                case 4 -> {
                     System.out.println("Exiting to main menu.");
                     currentState = state.MAIN_MENU;
                     return;
@@ -136,9 +216,13 @@ public class Controller {
         view.printMessage("Select one of the numbers below");
         view.printMessage("1. Search for student 2. Add a new student 3. Back");
 
-        int selection = scanner.nextInt();
+        int selection = pseudoScanner();
 
         switch (selection) {
+            case 0 -> {
+                view.printMessage("Select one of the numbers below");
+                view.printMessage("1. Search for student 2. Add a new student 3. Back");
+            }
             case 1 -> {
                 if (!model.studentList.isEmpty()) {
                     currentState = state.SEARCHING_STUDENT;
@@ -160,9 +244,13 @@ public class Controller {
         view.printMessage("Select one of the numbers below");
         view.printMessage("1. Add a new teacher 2. Select teacher 3. Back");
 
-        int selection = scanner.nextInt();
+        int selection = pseudoScanner();
 
         switch (selection) {
+            case 0 -> {
+                view.printMessage("Select one of the numbers below");
+                view.printMessage("1. Add a new teacher 2. Select teacher 3. Back");
+            }
             case 1 -> currentState = state.ADDING_TEACHER;
             case 2 -> {
                 if (!model.teacherList.isEmpty()) {
@@ -181,8 +269,9 @@ public class Controller {
 
     public void editStudent(Student currentStudent) {
         view.printMessage("1. Edit first name 2. Edit last name 3. Edit email adress 4. Back");
-        int selection = scanner.nextInt();
+        int selection = pseudoScanner();
         switch (selection) {
+            case 0 -> view.printMessage("1. Edit first name 2. Edit last name 3. Edit email adress 4. Back");
             case 1 -> {
                 String previousName = currentStudent.getFirstName();
                 view.printMessage("Enter a new first name.");
@@ -218,7 +307,7 @@ public class Controller {
             int selection;
 
             while (true) {
-                selection = scanner.nextInt();
+                selection = pseudoScanner();
                 if (selection <= model.studentList.size() && selection > 0) {
                     break;
                 } else if (selection == (model.studentList.size() + 1)) {
@@ -226,25 +315,35 @@ public class Controller {
                     return;
                 }
                 view.printMessage("Not a valid number, try again");
+                view.printAllStudents(model);
+                view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
             }
 
             currentStudent = model.studentList.get(selection - 1);
             view.printStudentInfo(currentStudent);
             view.printMessage("1. Edit student info 2. Remove student 3. Back");
-            selection = scanner.nextInt();
+            selection = pseudoScanner();
             switch (selection) {
+                case 0 -> {
+                    view.printStudentInfo(currentStudent);
+                    view.printMessage("1. Edit student info 2. Remove student 3. Back");
+                }
                 case 1 -> currentState = state.EDITING_STUDENT;
 
                 case 2 -> {
                     view.printMessage("Are you sure?");
                     view.printMessage("1 for Yes, 2 for No");
-                    selection = scanner.nextInt();
+                    selection = pseudoScanner();
                     switch (selection) {
+                        case 0 -> {
+                            view.printMessage("Are you sure?");
+                            view.printMessage("1 for Yes, 2 for No");
+                        }
                         case 1 -> {
                             model.removeStudent(currentStudent);
                             view.printMessage("Student removed.");
                             model.saveList();
-                            if(model.studentList.isEmpty()){
+                            if (model.studentList.isEmpty()) {
                                 currentState = state.MAIN_MENU;
                             }
                         }
@@ -302,7 +401,7 @@ public class Controller {
             int selection;
 
             while (true) {
-                selection = scanner.nextInt();
+                selection = pseudoScanner();
                 if (selection <= model.teacherList.size() && selection > 0) {
                     break;
                 } else if (selection == (model.teacherList.size() + 1)) {
@@ -310,13 +409,19 @@ public class Controller {
                     return;
                 }
                 view.printMessage("Not a valid number, try again");
+                view.printAllTeachers(model);
+                view.printMessage("Input a number matching a teacher or " + (model.teacherList.size() + 1) + " to exit: ");
             }
 
             currentTeacher = model.teacherList.get(selection - 1);
             view.printTeacherInfo(currentTeacher);
             view.printMessage("1. Edit teacher info 2. Assign a course 3. Remove teacher 3. Back");
-            selection = scanner.nextInt();
+            selection = pseudoScanner();
             switch (selection) {
+                case 0 -> {
+                    view.printTeacherInfo(currentTeacher);
+                    view.printMessage("1. Edit teacher info 2. Assign a course 3. Remove teacher 3. Back");
+                }
                 case 1 -> currentState = state.EDITING_TEACHER;
 
                 case 2 -> currentState = state.ASSIGN_TEACHER_TO_COURSE;
@@ -324,8 +429,12 @@ public class Controller {
                 case 3 -> {
                     view.printMessage("Are you sure?");
                     view.printMessage("1 for Yes, 2 for No");
-                    selection = scanner.nextInt();
+                    selection = pseudoScanner();
                     switch (selection) {
+                        case 0 -> {
+                            view.printMessage("Are you sure?");
+                            view.printMessage("1 for Yes, 2 for No");
+                        }
                         case 1 -> {
                             model.removeTeacher(currentTeacher);
                             view.printMessage("Teacher removed.");
@@ -352,13 +461,13 @@ public class Controller {
 
     }
 
-    public void assignTeacherToCourse(){
+    public void assignTeacherToCourse() {
         view.printMessage("Choose a course to assign " + currentTeacher.getFirstName() + " to.");
         view.printAllCourses(model);
         int selection;
-        while (true){
-            selection = scanner.nextInt();
-            if(selection<=model.courses.size() && selection >0) {
+        while (true) {
+            selection = pseudoScanner();
+            if (selection <= model.courses.size() && selection > 0) {
                 currentCourse = model.courses.get(selection - 1);
                 currentCourse.setTeacher(currentTeacher);
                 view.printMessage(currentTeacher.firstName + " assigned to " + currentCourse.getCourseName() + ".");
@@ -371,29 +480,35 @@ public class Controller {
         currentState = state.MAIN_MENU;
     }
 
-    public void assignCourseToTeacher(){
-        view.printMessage("Choose a teacher to assign " + currentCourse.getCourseName() + " to.");
-        view.printAllTeachers(model);
-        int selection;
-        while (true){
-            selection = scanner.nextInt();
-            if(selection<=model.teacherList.size() && selection >0) {
-                currentTeacher = model.teacherList.get(selection - 1);
-                currentCourse.setTeacher(currentTeacher);
-                view.printMessage("Set " + currentTeacher.getFirstName() + " as the teacher of " + currentCourse.getCourseName() + ".");
-                model.saveList();
-                break;
-            } else {
-                view.printMessage("Not a valid number");
+    public void assignCourseToTeacher() {
+        if(!model.teacherList.isEmpty()) {
+            view.printMessage("Choose a teacher to assign " + currentCourse.getCourseName() + " to.");
+            view.printAllTeachers(model);
+            int selection;
+            while (true) {
+                selection = pseudoScanner();
+                if (selection <= model.teacherList.size() && selection > 0) {
+                    currentTeacher = model.teacherList.get(selection - 1);
+                    currentCourse.setTeacher(currentTeacher);
+                    view.printMessage("Set " + currentTeacher.getFirstName() + " as the teacher of " + currentCourse.getCourseName() + ".");
+                    model.saveList();
+                    break;
+                } else {
+                    view.printMessage("Not a valid number");
+                }
             }
+            currentState = state.MAIN_MENU;
+        } else {
+            view.printMessage("No teachers exist.");
+            currentState = state.TEACHERS;
         }
-        currentState = state.MAIN_MENU;
     }
 
     public void editTeacher(Teacher currentTeacher) {
         view.printMessage("1. Edit first name 2. Edit last name 3. Edit email adress 4. Back");
-        int selection = scanner.nextInt();
+        int selection = pseudoScanner();
         switch (selection) {
+            case 0 -> view.printMessage("1. Edit first name 2. Edit last name 3. Edit email adress 4. Back");
             case 1 -> {
                 String previousName = currentTeacher.getFirstName();
                 view.printMessage("Enter a new first name.");

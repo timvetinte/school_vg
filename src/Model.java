@@ -7,6 +7,7 @@ public class Model {
     ArrayList<Student> studentList = new ArrayList();
     ArrayList<Teacher> teacherList = new ArrayList<>();
     ArrayList<Course> courses = new ArrayList<>();
+    ArrayList <Grade> gradeList = new ArrayList<>();
 
 
     File file = new File("src/list.ser");
@@ -88,8 +89,10 @@ public class Model {
 
     public Model(){
 
-        courses.add(new Course("Math", 20, null));
+        courses.add(new Course("Math", 2, null));
         courses.add(new Course("Biology", 20, null));
+        teacherList.add(new Teacher("Admin", "Login", "Admin.login@skola.se", "Password"));
+
 
 
         try {
