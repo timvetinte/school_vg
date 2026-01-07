@@ -88,8 +88,10 @@ public class Model {
 
     public Model(){
 
-        courses.add(new Course("Math", 2, null));
+        courses.add(new Course("Math", 20, null));
+        courses.add(new Course("Java", 20, null));
         courses.add(new Course("Biology", 20, null));
+        courses.add(new Course("Design-patterns", 20, null));
         teacherList.add(new Teacher("Admin", "Login", "Admin.login@skola.se", "Password"));
 
 
