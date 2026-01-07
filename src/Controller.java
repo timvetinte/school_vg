@@ -29,7 +29,7 @@ public class Controller {
         EDITING_STUDENT
     }
 
-    private state currentState = state.LOGIN;
+    private state currentState = state.MAIN_MENU;
 
     Scanner scanner = new Scanner(System.in);
     Scanner scannerString = new Scanner(System.in);
@@ -138,14 +138,14 @@ public class Controller {
 
         currentCourse = model.courses.get(selection - 1);
         view.printCourseInfo(currentCourse);
-        view.printMessage("1. Add student to course 2. Assign teacher 3. Grade student 4. Back");
+        view.printMessage("1. Add student to course 2. Remove student form course 3. Assign teacher 4. Grade student 5. Back");
         int selection2;
         while (true) {
             selection = pseudoScanner();
             switch (selection) {
                 case 0 -> {
                     view.printCourseInfo(currentCourse);
-                    view.printMessage("1. Add student to course 2. Assign teacher 3. Back");
+                    view.printMessage("1. Add student to course 2. Remove student form course 3. Assign teacher 4. Grade student 5. Back");
                 }
                 case 1 -> {
                     view.printAllStudents(model);
@@ -167,25 +167,58 @@ public class Controller {
                     if (!currentCourse.getClassList().contains(currentStudent)) {
                         if (!currentCourse.addStudentToCourse(currentStudent)) {
                             view.printMessage("Class is full.");
+                            return;
                         }
                     } else {
                         view.printMessage("Student already enrolled in course.");
+                        return;
                     }
                     model.saveList();
                     view.printMessage(currentStudent.getFirstName() + " was added to the " + currentCourse.getCourseName() + " course.");
                     return;
                 }
-                case 2 -> {
+                case 2 ->{
+                    while(true) {
+                        view.printAllStudents(model);
+                        view.printMessage("Enter the number of the student to be removed or enter" + (currentCourse.getClassList().size() + 1) + " to exit");
+                        selection = pseudoScanner();
+                        if (selection <= currentCourse.getClassList().size() && selection > 0) {
+                            currentStudent = currentCourse.getClassList().get(selection-1);
+                            view.printMessage("Are you sure?");
+                            view.printMessage("1 for yes 2 for no.");
+                            selection2 = pseudoScanner();
+                            switch (selection2) {
+                                case 1 -> {
+                                    currentCourse.getClassList().remove(currentStudent);
+                                    view.printMessage("Removed " + currentStudent.getFirstName() + " from course.");
+                                    model.saveList();
+                                    currentState = state.COURSES;
+                                    return;
+                                }
+                                case 2 -> {
+                                    view.printMessage("Did not remove student");
+                                    currentState = state.COURSES;
+                                    return;
+                                }
+
+                            }
+                        } else if (selection == (currentCourse.getClassList().size() + 1)) {
+                            currentState = state.MAIN_MENU;
+                            return;
+                        }
+                    }
+                }
+                case 3 -> {
                     currentState = state.ASSIGN_COURSE_TO_TEACHER;
                     return;
                 }
 
-                case 3 -> {
+                case 4 -> {
                     currentState = state.GRADE_STUDENT;
                     return;
                 }
 
-                case 4 -> {
+                case 5 -> {
                     System.out.println("Exiting to main menu.");
                     currentState = state.MAIN_MENU;
                     return;
@@ -201,10 +234,12 @@ public class Controller {
     public void gradeStudent(){
         if (currentCourse.getClassList().isEmpty()) {
             view.printCourseStudents(currentCourse);
+            currentState=state.COURSES;
+
         } else {
             view.printCourseStudents(currentCourse);
             while(true) {
-                view.printMessage("Input a number matching a student.");
+                view.printMessage("Input a number matching a student or type " + (currentCourse.getClassList().size() + 1) + " to exit.");
                 int selection3 = pseudoScanner();
 
                 if (selection3 <= currentCourse.getClassList().size() && selection3 > 0) {
@@ -214,7 +249,15 @@ public class Controller {
                     scanner.nextLine();
                     String grade = scanner.nextLine();
                     currentStudent.addGrade(currentCourse, grade);
+                    view.printMessage(currentStudent.getFirstName() + "'s grade in " +
+                            currentCourse.getCourseName() + " was set to " + grade + ".");
+                    model.saveList();
 
+                    currentState = state.COURSES;
+                    return;
+
+                } else if (selection3 == (currentCourse.getClassList().size() + 1)) {
+                    view.printMessage("Exiting...");
                     currentState = state.COURSES;
                     return;
 
