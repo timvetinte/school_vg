@@ -20,7 +20,6 @@ public class Course implements Serializable {
     public boolean addStudentToCourse(Student student){
         if (classList.size()<this.getCourseSize()) {
             classList.add(student);
-            System.out.println("THIS WAS ADDED");
             return true;
         } else {
         return false;

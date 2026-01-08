@@ -16,10 +16,12 @@ public class Controller {
         LOGIN,
         MAIN_MENU,
         COURSES,
+        COURSE_VIEW,
         ASSIGN_TEACHER_TO_COURSE,
         ASSIGN_COURSE_TO_TEACHER,
         STUDENTS,
         GRADE_STUDENT,
+        ASSIGNING_GRADE,
         TEACHERS,
         ADDING_TEACHER,
         SELECT_TEACHER,
@@ -39,7 +41,7 @@ public class Controller {
         this.view = view;
     }
 
-    public void run() throws IOException {
+    public void run() throws IOException, InterruptedException {
         while (true) {
             switch (currentState) {
                 case LOGIN -> login();
@@ -47,8 +49,10 @@ public class Controller {
                 case STUDENTS -> students();
                 case GRADE_STUDENT -> gradeStudent();
                 case COURSES -> courses();
+                case COURSE_VIEW -> courseView();
                 case ASSIGN_TEACHER_TO_COURSE -> assignTeacherToCourse();
                 case ASSIGN_COURSE_TO_TEACHER -> assignCourseToTeacher();
+                case ASSIGNING_GRADE -> assigningGrade();
                 case TEACHERS -> teachers();
                 case ADDING_TEACHER -> createTeacher();
                 case SELECT_TEACHER -> selectTeacher();
@@ -138,11 +142,15 @@ public class Controller {
         }
 
         currentCourse = model.courses.get(selection - 1);
+        currentState = state.COURSE_VIEW;
+    }
+
+    public void courseView(){
         view.printCourseInfo(currentCourse);
         view.printMessage("1. Add student to course 2. Remove student form course 3. Assign teacher 4. Grade student 5. Back");
         int selection2;
         while (true) {
-            selection = pseudoScanner();
+            int selection = pseudoScanner();
             switch (selection) {
                 case 0 -> {
                     view.printCourseInfo(currentCourse);
@@ -157,8 +165,8 @@ public class Controller {
                         if (selection2 <= model.studentList.size() && selection2 > 0) {
                             break;
                         } else if (selection2 == (model.studentList.size() + 1)) {
-                            view.printMessage("Exiting to main menu.");
-                            currentState = state.MAIN_MENU;
+                            view.printMessage("Exiting...");
+                            currentState = state.COURSES;
                             return;
                         }
                         view.printMessage("Not a valid number, try again");
@@ -190,21 +198,21 @@ public class Controller {
                             selection2 = pseudoScanner();
                             switch (selection2) {
                                 case 1 -> {
-                                    currentCourse.getClassList().remove(currentStudent);
+                                    currentCourse.removeStudent(currentStudent);
                                     view.printMessage("Removed " + currentStudent.getFirstName() + " from course.");
                                     model.saveList();
-                                    currentState = state.COURSES;
+                                    currentState = state.COURSE_VIEW;
                                     return;
                                 }
                                 case 2 -> {
                                     view.printMessage("Did not remove student");
-                                    currentState = state.COURSES;
+                                    currentState = state.COURSE_VIEW;
                                     return;
                                 }
 
                             }
                         } else if (selection == (currentCourse.getClassList().size() + 1)) {
-                            currentState = state.MAIN_MENU;
+                            currentState = state.COURSES;
                             return;
                         }
                     }
@@ -220,8 +228,8 @@ public class Controller {
                 }
 
                 case 5 -> {
-                    System.out.println("Exiting to main menu.");
-                    currentState = state.MAIN_MENU;
+                    System.out.println("Exiting...");
+                    currentState = state.COURSES;
                     return;
                 }
                 default -> {
@@ -246,15 +254,7 @@ public class Controller {
                 if (selection3 <= currentCourse.getClassList().size() && selection3 > 0) {
                     currentStudent = currentCourse.getClassList().get(selection3 - 1);
 
-                    view.printMessage("Enter " + currentStudent.getFirstName() + "'s grade.");
-                    scanner.nextLine();
-                    String grade = scanner.nextLine();
-                    currentStudent.addGrade(currentCourse, grade);
-                    view.printMessage(currentStudent.getFirstName() + "'s grade in " +
-                            currentCourse.getCourseName() + " was set to " + grade + ".");
-                    model.saveList();
-
-                    currentState = state.COURSES;
+                    currentState = state.ASSIGNING_GRADE;
                     return;
 
                 } else if (selection3 == (currentCourse.getClassList().size() + 1)) {
@@ -267,6 +267,18 @@ public class Controller {
                 }
             }
         }
+    }
+
+    public void assigningGrade() throws InterruptedException {
+        view.printMessage("Enter " + currentStudent.getFirstName() + "'s grade.");
+        String grade = scanner.nextLine();
+        currentStudent.addGrade(currentCourse, grade);
+        view.printMessage(currentStudent.getFirstName() + "'s grade in " +
+                currentCourse.getCourseName() + " was set to " + grade + ".");
+        model.saveList();
+        Thread.sleep(1500);
+
+        currentState = state.GRADE_STUDENT;
     }
 
     public void students() {
