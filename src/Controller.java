@@ -15,25 +15,27 @@ public class Controller {
     private enum state {
         LOGIN,
         MAIN_MENU,
+        STUDENTS,
+        SEARCHING_STUDENT,
+        STUDENT_VIEW,
+        EDITING_STUDENT,
+        ADDING_STUDENT,
+        ///
+        TEACHERS,
+        ADDING_TEACHER,
+        SELECT_TEACHER,
+        TEACHER_VIEW,
+        REMOVE_TEACHER,
+        EDITING_TEACHER,
+        ASSIGN_COURSE_TO_TEACHER,
+        ///
         COURSES,
         COURSE_VIEW,
-        ASSIGN_TEACHER_TO_COURSE,
-        ASSIGN_COURSE_TO_TEACHER,
-        STUDENTS,
-        GRADE_STUDENT,
-        STUDENT_VIEW,
-        ASSIGNING_GRADE,
-        TEACHERS,
-        TEACHER_VIEW,
-        ADDING_TEACHER,
-        REMOVE_TEACHER,
-        SELECT_TEACHER,
-        EDITING_TEACHER,
-        SEARCHING_STUDENT,
-        ADDING_STUDENT,
-        REMOVE_STUDENT_FROM_COURSE,
         ADD_STUDENT_TO_COURSE,
-        EDITING_STUDENT
+        GRADE_STUDENT,
+        ASSIGNING_GRADE,
+        REMOVE_STUDENT_FROM_COURSE,
+        ASSIGN_TEACHER_TO_COURSE
     }
 
     private state currentState = state.LOGIN;
@@ -49,27 +51,32 @@ public class Controller {
     public void run() throws IOException, InterruptedException {
         while (true) {
             switch (currentState) {
+
+
                 case LOGIN -> login();
                 case MAIN_MENU -> mainMenu();
                 case STUDENTS -> students();
+                case SEARCHING_STUDENT -> searchStudent();
+                case STUDENT_VIEW -> studentView();
+                case EDITING_STUDENT -> editStudent(currentStudent);
                 case ADD_STUDENT_TO_COURSE -> addStudentToCourse();
                 case REMOVE_STUDENT_FROM_COURSE -> removeStudentFromCourse();
                 case GRADE_STUDENT -> gradeStudent();
+                case ADDING_STUDENT -> createStudent();
+                ///
+                case TEACHERS -> teachers();
+                case TEACHER_VIEW -> teacherView();
+                case ADDING_TEACHER -> createTeacher();
+                case SELECT_TEACHER -> selectTeacher();
+                case EDITING_TEACHER -> editTeacher(currentTeacher);
+                ///
                 case COURSES -> courses();
                 case COURSE_VIEW -> courseView();
                 case ASSIGN_TEACHER_TO_COURSE -> assignTeacherToCourse();
                 case ASSIGN_COURSE_TO_TEACHER -> assignCourseToTeacher();
                 case REMOVE_TEACHER -> removeTeacher();
                 case ASSIGNING_GRADE -> assigningGrade();
-                case TEACHERS -> teachers();
-                case TEACHER_VIEW -> teacherView();
-                case ADDING_TEACHER -> createTeacher();
-                case SELECT_TEACHER -> selectTeacher();
-                case EDITING_TEACHER -> editTeacher(currentTeacher);
-                case STUDENT_VIEW -> studentView();
-                case SEARCHING_STUDENT -> searchStudent();
-                case EDITING_STUDENT -> editStudent(currentStudent);
-                case ADDING_STUDENT -> createStudent();
+
             }
         }
     }
@@ -95,16 +102,16 @@ public class Controller {
                 currentLogin = t;
                 while (true) {
                     view.printOnOneLine("Enter password or 1 to exit: ");
-                    emailFound=true;
+                    emailFound = true;
                     String loginPass = scanner.nextLine();
                     if (currentLogin.getPassword().equals(loginPass)) {
                         view.printMessage("\n\nSuccessful login!");
-                        view.printMessage("Welcome " + currentLogin.getFirstName());
-                        emailFound=false;
+                        view.printMessage("Welcome " + currentLogin.getFirstName() + " " + currentLogin.getLastName() + "!");
+                        emailFound = false;
                         currentState = state.MAIN_MENU;
                         return;
                     } else if (loginPass.equals("1")) {
-                        emailFound=true;
+                        emailFound = true;
                         break;
                     } else {
                         view.printMessage("Wrong password, try again.");
@@ -113,7 +120,7 @@ public class Controller {
 
             }
         }
-        if(!emailFound) {
+        if (!emailFound) {
             view.printMessage("Email not found.");
         }
         emailFound = false;
@@ -121,32 +128,32 @@ public class Controller {
 
     public void mainMenu() throws InterruptedException {
         view.printIntro();
-        while(true){
-        view.printMessage("Select one of the numbers below");
-        view.printMessage("1. Students 2. Teachers 3. Courses 4. Logout");
+        while (true) {
+            view.printMessage("Select one of the numbers below:");
+            view.printMessage("1. Students 2. Teachers 3. Courses 4. Logout");
 
-        int selection = pseudoScanner();
+            int selection = pseudoScanner();
 
-        switch (selection) {
-            case 1 -> {
-                currentState = state.STUDENTS;
-                return;
+            switch (selection) {
+                case 1 -> {
+                    currentState = state.STUDENTS;
+                    return;
+                }
+                case 2 -> {
+                    currentState = state.TEACHERS;
+                    return;
+                }
+                case 3 -> {
+                    currentState = state.COURSES;
+                    return;
+                }
+                case 4 -> {
+                    currentLogin = null;
+                    currentState = state.LOGIN;
+                    return;
+                }
+                default -> view.printMessage("Not a valid option");
             }
-            case 2 -> {
-                currentState = state.TEACHERS;
-                return;
-            }
-            case 3 -> {
-                currentState = state.COURSES;
-                return;
-            }
-            case 4 -> {
-                currentLogin = null;
-                currentState = state.LOGIN;
-                return;
-            }
-            default -> view.printMessage("Not a valid option");
-        }
         }
 
     }
@@ -285,7 +292,7 @@ public class Controller {
                 }
             } else {
                 view.printMessage("Student already enrolled in course.");
-                Thread.sleep(1700);
+                Thread.sleep(1500);
                 return;
             }
             model.saveList();
@@ -318,7 +325,7 @@ public class Controller {
 
                 } else if (selection3 == (currentCourse.getClassList().size() + 1)) {
                     view.printMessage("Exiting...");
-                    currentState = state.COURSES;
+                    currentState = state.COURSE_VIEW;
                     return;
 
                 } else {
@@ -345,14 +352,14 @@ public class Controller {
     }
 
     public void students() {
-        view.printMessage("Select one of the numbers below");
+        view.printMessage("Select one of the numbers below:");
         view.printMessage("1. Search for student 2. Add a new student 3. Back");
 
         int selection = pseudoScanner();
 
         switch (selection) {
             case 0 -> {
-                view.printMessage("Select one of the numbers below");
+                view.printMessage("Select one of the numbers below:");
                 view.printMessage("1. Search for student 2. Add a new student 3. Back");
             }
             case 1 -> {
@@ -373,20 +380,20 @@ public class Controller {
     }
 
     public void teachers() {
-        view.printMessage("Select one of the numbers below");
-        view.printMessage("1. Add a new teacher 2. Select teacher 3. Back");
+        view.printMessage("Select one of the numbers below:");
+        view.printMessage("1. Select teacher 2. Add a new teacher 3. Back");
 
         int selection = pseudoScanner();
 
         switch (selection) {
-            case 1 -> currentState = state.ADDING_TEACHER;
-            case 2 -> {
+            case 1 -> {
                 if (!model.teacherList.isEmpty()) {
                     currentState = state.SELECT_TEACHER;
                 } else {
                     view.printMessage("No teachers exist.");
                 }
             }
+            case 2 -> currentState = state.ADDING_TEACHER;
             case 3 -> {
                 view.printMessage("Exiting to main menu.");
                 currentState = state.MAIN_MENU;
@@ -436,7 +443,7 @@ public class Controller {
                 if (selection <= model.studentList.size() && selection > 0) {
                     break;
                 } else if (selection == (model.studentList.size() + 1)) {
-                    currentState = state.MAIN_MENU;
+                    currentState = state.STUDENTS;
                     return;
                 }
                 view.printMessage("Not a valid number, try again");
@@ -456,12 +463,17 @@ public class Controller {
 
     public void studentView() {
         view.printStudentInfo(currentStudent);
-        view.printMessage("1. Edit student info 2. Remove student 3. Show students courses 4. Back");
+        view.printMessage("1. Edit student info 2. Show students courses 3. Remove student 4. Back");
         int selection = pseudoScanner();
         switch (selection) {
             case 1 -> currentState = state.EDITING_STUDENT;
 
             case 2 -> {
+                view.studentFindCourses(currentStudent, model);
+                view.printMessage("Press enter to exit.");
+                scanner.nextLine();
+            }
+            case 3 -> {
                 view.printMessage("Are you sure?");
                 view.printMessage("1 for Yes, 2 for No");
                 selection = pseudoScanner();
@@ -481,20 +493,15 @@ public class Controller {
                             currentState = state.SEARCHING_STUDENT;
                         }
                     }
-                    case 2 -> currentState = state.MAIN_MENU;
+                    case 2 -> currentState = state.SEARCHING_STUDENT;
 
                     default -> view.printMessage("Not a valid option");
 
                 }
             }
-            case 3 -> {
-                view.studentFindCourses(currentStudent, model);
-                view.printMessage("Press enter to exit.");
-                scanner.nextLine();
-            }
-            case 4 -> {
+            case 4 ->
                 currentState = state.SEARCHING_STUDENT;
-            }
+
 
 
         }
@@ -514,16 +521,16 @@ public class Controller {
         String lName = scannerString.nextLine().trim();
         if (lName.equalsIgnoreCase("1")) {
             view.printMessage("Exiting...");
-            currentState = state.SEARCHING_STUDENT;
+            currentState = state.STUDENTS;
             return;
         }
         String email = fName + "." + lName + "@skola.se";
         int studentID = 10000 + (int) (Math.random() * 9000);
-        view.printMessage("Student added.");
+        view.printMessage("Student created.");
         currentStudent = Student.createStudent(fName, lName, email, studentID);
         model.addStudent(currentStudent);
         model.saveList();
-        currentState = state.STUDENT_VIEW;
+        currentState = state.STUDENTS;
     }
 
     public void createTeacher() {
@@ -611,14 +618,14 @@ public class Controller {
             if (selection <= model.courses.size() && selection > 0) {
                 currentCourse = model.courses.get(selection - 1);
                 currentCourse.setTeacher(currentTeacher);
-                view.printMessage(currentTeacher.firstName + " assigned to " + currentCourse.getCourseName() + ".");
+                view.printMessage(currentTeacher.firstName + " was assigned to " + currentCourse.getCourseName() + ".");
                 model.saveList();
                 break;
             } else {
                 view.printMessage("Not a valid number");
             }
         }
-        currentState = state.MAIN_MENU;
+        currentState = state.TEACHER_VIEW;
     }
 
     public void removeTeacher() {
@@ -719,12 +726,14 @@ public class Controller {
                     while (true) {
                         view.printMessage("Enter a new password.");
                         password = scannerString.nextLine();
-                        if (password.length() < 4) {
+                        if (password.equalsIgnoreCase("1")) {
+                            currentState = state.TEACHER_VIEW;
+                            return;
+                        } else if (password.length() < 4) {
                             view.printMessage("Password too short, minium 4 characters. Try again");
                         } else if (password.length() > 15) {
                             view.printMessage("Password too long, maximum 15 characters. Try again");
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     }
@@ -735,8 +744,7 @@ public class Controller {
                     view.printMessage("Cant change the admins password.");
                 }
             }
-            case 5 ->
-                currentState = state.SELECT_TEACHER;
+            case 5 -> currentState = state.SELECT_TEACHER;
 
         }
     }
