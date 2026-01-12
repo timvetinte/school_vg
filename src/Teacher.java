@@ -2,11 +2,11 @@ import java.io.Serializable;
 
 public class Teacher extends Person implements Serializable {
 
-    String firstName;
-    String lastName;
-    String emailAddress;
-    String password;
-    Boolean admin;
+    private String firstName;
+    private String lastName;
+    private String emailAddress;
+    private String password;
+    private Boolean admin;
 
     public Teacher(String firstName, String lastName, String emailAddress, String password, Boolean admin){
         this.firstName=firstName;

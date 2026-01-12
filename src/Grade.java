@@ -14,10 +14,6 @@ public class Grade implements Serializable {
         return course;
     }
 
-    public void setCourse(Course course) {
-        this.course = course;
-    }
-
     public String getGrade() {
         return grade;
     }

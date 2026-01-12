@@ -15,6 +15,7 @@ public class Controller {
     private enum state {
         LOGIN,
         MAIN_MENU,
+        ///
         STUDENTS,
         SEARCHING_STUDENT,
         STUDENT_VIEW,
@@ -97,6 +98,18 @@ public class Controller {
         view.printMessage("ADMINISTRATIVE SCHOOL SYSTEM");
         view.printOnOneLine("Enter email address: ");
         String loginEmail = scanner.nextLine();
+
+        if(loginEmail.equalsIgnoreCase("createstudents")) {
+            model.studentList.clear();
+            model.courses.get(1).getClassList().clear();
+            Student.createManyStudents(model.studentList);
+            view.printMessage("ADDED 20 STUDENTS");
+            for(Student s : model.studentList){
+                model.courses.get(1).addStudentToCourse(s);
+            }
+            model.saveList();
+            emailFound=true;
+        }
         for (Teacher t : model.teacherList) {
             if (loginEmail.equalsIgnoreCase(t.getEmailAddress())) {
                 currentLogin = t;
@@ -618,10 +631,14 @@ public class Controller {
             if (selection <= model.courses.size() && selection > 0) {
                 currentCourse = model.courses.get(selection - 1);
                 currentCourse.setTeacher(currentTeacher);
-                view.printMessage(currentTeacher.firstName + " was assigned to " + currentCourse.getCourseName() + ".");
+                view.printMessage(currentTeacher.getFirstName() + " was assigned to " + currentCourse.getCourseName() + ".");
                 model.saveList();
                 break;
-            } else {
+            } else if (selection == (model.courses.size() + 1)) {
+                currentState = state.TEACHER_VIEW;
+                return;
+
+        } else {
                 view.printMessage("Not a valid number");
             }
         }
