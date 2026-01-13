@@ -2,7 +2,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Student implements Serializable {
+public class Student extends Person implements Serializable {
 
     private String firstName;
     private String lastName;
@@ -47,7 +47,7 @@ public class Student implements Serializable {
 
     }
 
-    public void addGrade(Course course, String grade) {
+    public void addGrade(Course course, int grade) {
         for (Grade g : grades) {
             if (g.getCourse().equals(course)) {
                 g.setGrade(grade);
@@ -58,13 +58,13 @@ public class Student implements Serializable {
         grades.add(newGrade);
     }
 
-    public String getGrade(Course course) {
+    public int getGrade(Course course) {
         for (Grade grade : grades) {
             if (grade.getCourse().equals(course)) {
-                return "(" + grade.getGrade() + ")";
+                return grade.getGrade();
             }
         }
-        return "(-)";
+        return 0;
     }
 
 
@@ -96,7 +96,9 @@ public class Student implements Serializable {
         this.emailAddress = emailAddress;
     }
 
-    public void setStudentID(int studentID) {
-        this.studentID = studentID;
+    public List<Grade> getGrades() {
+        return grades;
     }
 }
+
+

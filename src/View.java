@@ -43,6 +43,68 @@ public class View {
         }
     }
 
+    public String gradeToString(int grade) {
+        switch (grade) {
+            case 0 -> {
+                return "-";
+            }
+            case 1 -> {
+                return "A";
+            }
+            case 2 -> {
+                return "B";
+            }
+            case 3 -> {
+                return "C";
+            }
+            case 4 -> {
+                return "D";
+            }
+            case 5 -> {
+                return "E";
+            }
+            case 6 -> {
+                return "F";
+            }
+            default -> {
+                return "?";
+            }
+        }
+    }
+    public int getCourseAverage(Course course){
+        int courseAverage = 0;
+        int peopleWithGrades = 0;
+        boolean divideOk = false;
+        for(Student s: course.getClassList()){
+            if(s.getGrade(course) != 0){
+                courseAverage = courseAverage + s.getGrade(course);
+                peopleWithGrades++;
+                divideOk = true;
+            }
+        }
+        if(divideOk) {
+            courseAverage = courseAverage / peopleWithGrades;
+        }
+        return courseAverage;
+    }
+
+    public int getStudentAverage(Student student){
+        int studentAverage = 0;
+        int gradedCourses = 0;
+        boolean divideOk = false;
+        for(Grade g : student.getGrades()){
+            if(g.getGrade()!=0 && student.getGrades()!=null){
+                studentAverage = studentAverage + g.getGrade();
+                gradedCourses++;
+                divideOk = true;
+            }
+        }
+        if(divideOk) {
+            studentAverage = studentAverage / gradedCourses;
+        }
+        return studentAverage;
+    }
+
     public void printCourseInfo(Course course) {
         System.out.println(course.getCourseName());
         if (course.getTeacher() != null) {
@@ -56,19 +118,29 @@ public class View {
                 index++;
             }
             System.out.println("--------------------");
+            if(getCourseAverage(course)!=0) {
+                System.out.println("Course average grade: (" + gradeToString(getCourseAverage(course)) +")");
+            }
             index = 1;
         } else {
             System.out.println("Course is empty, add students.");
         }
     }
 
+    public void printGradeAlternatives(){
+        System.out.println("1. A \n2. B \n3. C\n4. D\n5. E\n6. F\n7. To exit.");
+    }
+
     public void printCourseStudents(Course course){
         if (!course.getClassList().isEmpty()) {
             for (Student s : course.getClassList()) {
-                System.out.println(index + ". " + s.getFirstName() + " " + s.getLastName() + " " + s.getGrade(course));
+                System.out.println(index + ". " + s.getFirstName() + " " + s.getLastName() + " (" + gradeToString(s.getGrade(course)) + ")");
                 index++;
             }
             index = 1;
+            if(getCourseAverage(course)!=0) {
+                System.out.println("Course average grade: (" + gradeToString(getCourseAverage(course)) +")");
+            }
         } else {
             System.out.println("Course is empty, add students.");
         }
@@ -78,7 +150,9 @@ public class View {
         System.out.println("Selected student: " + student.getFirstName() + " " + student.getLastName());
         System.out.println("Student ID: " + student.getStudentID());
         System.out.println("Student email: " + student.getEmailAddress());
-
+        if(getStudentAverage(student)!=0){
+            System.out.println("Average grade: " + gradeToString(getStudentAverage(student)));
+        }
     }
 
     public void printTeacherInfo(Teacher teacher) {
@@ -146,7 +220,7 @@ public class View {
             System.out.println(student.getFirstName() + " is enrolled in: ");
             for (Course c : model.courses) {
                 if (c.getClassList().contains(student)) {
-                    System.out.println(index + ". " + c.getCourseName() + " " + student.getGrade(c));
+                    System.out.println(index + ". " + c.getCourseName() + " " + gradeToString(student.getGrade(c)));
                     index++;
                 }
             }

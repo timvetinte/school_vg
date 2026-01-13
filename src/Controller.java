@@ -349,11 +349,22 @@ public class Controller {
     }
 
     public void assigningGrade() throws InterruptedException {
-        view.printMessage("Enter " + currentStudent.getFirstName() + "'s grade.");
-        String grade = scanner.nextLine();
+        view.printMessage("Enter a number matching " + currentStudent.getFirstName() + "'s grade.");
+        view.printGradeAlternatives();
+        int grade;
+        while (true) {
+            grade = pseudoScanner();
+            if(grade < 7 && grade > 0){
+                break;
+            } else if (grade == 7) {
+                currentState = state.GRADE_STUDENT;
+                return;
+            }
+            view.printMessage("Invalid input");
+        }
         currentStudent.addGrade(currentCourse, grade);
         view.printMessage(currentStudent.getFirstName() + "'s grade in " +
-                currentCourse.getCourseName() + " was set to " + grade + ".");
+                currentCourse.getCourseName() + " was set to " + view.gradeToString(grade) + ".");
         model.saveList();
         Thread.sleep(1500);
 
@@ -706,6 +717,8 @@ public class Controller {
             currentState = state.COURSE_VIEW;
         }
     }
+
+
 
     public void editTeacher(Teacher currentTeacher) {
         view.printMessage("1. Edit first name 2. Edit last name 3. Edit email address 4. Edit password 5. Back");

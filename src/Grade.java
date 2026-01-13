@@ -3,9 +3,9 @@ import java.io.Serializable;
 public class Grade implements Serializable {
 
     private Course course;
-    private String grade;
+    private int grade;
 
-    public Grade(Course course, String grade){
+    public Grade(Course course, int grade){
         this.course=course;
         this.grade=grade;
     }
@@ -14,11 +14,11 @@ public class Grade implements Serializable {
         return course;
     }
 
-    public String getGrade() {
+    public int getGrade() {
         return grade;
     }
 
-    public void setGrade(String grade) {
+    public void setGrade(int grade) {
         this.grade = grade;
     }
 }
