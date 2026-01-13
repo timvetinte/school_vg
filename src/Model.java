@@ -43,12 +43,20 @@ public class Model {
         teacherList.sort(Comparator.comparing(Teacher::getFirstName));
     }
 
+    public void sortCourses(){
+
+        for(Course c : courses){
+            c.getClassList().sort(Comparator.comparing(Student::getFirstName));
+        }
+    }
+
 
 
     public void saveList() {
 
         sortStudentList();
         sortTeacherList();
+        sortCourses();
 
         try { ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
 
@@ -102,6 +110,7 @@ public class Model {
         courses.add(new Course("Biology", 20, null));
         courses.add(new Course("Design-patterns", 20, null));
         teacherList.add(new Teacher("Admin", "Login", "Admin.login@skola.se", "Password", true));
+
 
 
 

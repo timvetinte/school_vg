@@ -17,6 +17,10 @@ public class Course implements Serializable {
 
     }
 
+    public static Course createCourse(String courseName, int courseSize, Teacher teacher) {
+        return new Course(courseName, courseSize, teacher);
+    }
+
     public boolean addStudentToCourse(Student student) {
         if (classList.size() < this.getCourseSize()) {
             classList.add(student);
@@ -26,9 +30,9 @@ public class Course implements Serializable {
         }
     }
 
-
-
-
+    public void setCourseSize(int courseSize) {
+        this.courseSize = courseSize;
+    }
 
     public void removeStudent(Student student){
         classList.remove(student);
@@ -43,9 +47,6 @@ public class Course implements Serializable {
         return classList;
     }
 
-    public String getTeacherName() {
-        return teacher.getFirstName();
-    }
 
     public Teacher getTeacher(){
         return teacher;

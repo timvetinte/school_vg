@@ -26,6 +26,8 @@ public class View {
             System.out.println(index + ". " + c.getCourseName());
             index++;
         }
+        System.out.println(index + ". New Course");
+        index++;
         System.out.println(index + ". Exit");
         index = 1;
     }

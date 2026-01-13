@@ -4,16 +4,11 @@ import java.util.List;
 
 public class Student extends Person implements Serializable {
 
-    private String firstName;
-    private String lastName;
-    private String emailAddress;
     private int studentID;
     private List<Grade> grades;
 
     public Student(String firstName, String lastName, String emailAddress, int studentID) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.emailAddress = emailAddress;
+        super(firstName, lastName, emailAddress);
         this.studentID = studentID;
         this.grades = new ArrayList<>();
     }
@@ -67,33 +62,8 @@ public class Student extends Person implements Serializable {
         return 0;
     }
 
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
     public int getStudentID() {
         return studentID;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
     }
 
     public List<Grade> getGrades() {

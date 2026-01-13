@@ -31,7 +31,9 @@ public class Controller {
         ASSIGN_COURSE_TO_TEACHER,
         ///
         COURSES,
+        COURSE_SET_SIZE,
         COURSE_VIEW,
+        CREATE_COURSE,
         ADD_STUDENT_TO_COURSE,
         GRADE_STUDENT,
         ASSIGNING_GRADE,
@@ -72,6 +74,8 @@ public class Controller {
                 case EDITING_TEACHER -> editTeacher(currentTeacher);
                 ///
                 case COURSES -> courses();
+                case COURSE_SET_SIZE -> setCourseClassSize();
+                case CREATE_COURSE -> createNewCourse();
                 case COURSE_VIEW -> courseView();
                 case ASSIGN_TEACHER_TO_COURSE -> assignTeacherToCourse();
                 case ASSIGN_COURSE_TO_TEACHER -> assignCourseToTeacher();
@@ -99,16 +103,16 @@ public class Controller {
         view.printOnOneLine("Enter email address: ");
         String loginEmail = scanner.nextLine();
 
-        if(loginEmail.equalsIgnoreCase("createstudents")) {
+        if (loginEmail.equalsIgnoreCase("createstudents")) {
             model.studentList.clear();
             model.courses.get(1).getClassList().clear();
             Student.createManyStudents(model.studentList);
             view.printMessage("ADDED 20 STUDENTS");
-            for(Student s : model.studentList){
+            for (Student s : model.studentList) {
                 model.courses.get(1).addStudentToCourse(s);
             }
             model.saveList();
-            emailFound=true;
+            emailFound = true;
         }
         for (Teacher t : model.teacherList) {
             if (loginEmail.equalsIgnoreCase(t.getEmailAddress())) {
@@ -174,7 +178,7 @@ public class Controller {
 
     public void courses() throws InterruptedException {
         view.printAllCourses(model);
-        view.printMessage("Input a number matching a course or " + (model.courses.size() + 1) + " to exit: ");
+        view.printMessage("Input a number matching a course, " + (model.courses.size() + 1) + " to create a new course or " + (model.courses.size() + 2) + " to exit.");
         int selection;
 
         while (true) {
@@ -183,6 +187,10 @@ public class Controller {
             if (selection <= model.courses.size() && selection > 0) {
                 break;
             } else if (selection == (model.courses.size() + 1)) {
+                currentState = state.CREATE_COURSE;
+                return;
+
+            } else if (selection == (model.courses.size() + 2)) {
                 currentState = state.MAIN_MENU;
                 return;
             }
@@ -196,15 +204,78 @@ public class Controller {
         currentState = state.COURSE_VIEW;
     }
 
+    public void createNewCourse() {
+        String courseName;
+        while (true) {
+            view.printOnOneLine("Enter course name or enter 1 to exit: ");
+            courseName = scanner.nextLine();
+            if (courseName.isBlank()) {
+                view.printMessage("Cannot be blank");
+            } else if (courseName.length() > 19) {
+                view.printMessage("Course name too long");
+            } else if (courseName.equalsIgnoreCase("1")) {
+                currentState = state.COURSES;
+                return;
+            } else {
+                break;
+            }
+        }
+
+        while (true) {
+            view.printOnOneLine("Enter course class size or enter 1 to exit: ");
+            int classSize = pseudoScanner();
+            if (classSize == 1) {
+                currentState = state.COURSES;
+                return;
+            } else if (classSize < 6) {
+                view.printMessage("Class too small!");
+            } else if (classSize > 30) {
+                view.printMessage("Class too large!");
+            } else {
+                currentCourse = Course.createCourse(courseName, classSize, null);
+                model.courses.add(currentCourse);
+                model.saveList();
+                view.printMessage(currentCourse.getCourseName() + " course was created.");
+                currentState = state.COURSES;
+                return;
+            }
+        }
+
+
+    }
+
+    public void setCourseClassSize() {
+        while (true) {
+            view.printOnOneLine("Enter course class size or enter 1 to exit: ");
+            int classSize = pseudoScanner();
+            if (classSize == 1) {
+                currentState = state.COURSE_VIEW;
+                return;
+            } else if (classSize < currentCourse.getClassList().size()) {
+                view.printMessage("There are more than " + classSize + " enrolled already.");
+            } else if (classSize < 5) {
+                view.printMessage("Class too small!");
+            } else if (classSize > 30) {
+                view.printMessage("Class too large");
+            } else if (classSize == 0) {
+                view.printMessage("Invalid input");
+            } else {
+                currentCourse.setCourseSize(classSize);
+                currentState = state.COURSE_VIEW;
+                return;
+            }
+        }
+    }
+
     public void courseView() throws InterruptedException {
         view.printCourseInfo(currentCourse);
-        view.printMessage("1. Add student to course 2. Remove student from course 3. Assign teacher 4. Grade student 5. Back");
+        view.printMessage("1. Add student to course 2. Remove student from course 3. Set class size 4. Assign teacher 5. Grade student 6. Back");
         while (true) {
             int selection = pseudoScanner();
             switch (selection) {
                 case 0 -> {
                     view.printCourseInfo(currentCourse);
-                    view.printMessage("1. Add student to course 2. Remove student from course 3. Assign teacher 4. Grade student 5. Back");
+                    view.printMessage("1. Add student to course 2. Remove student from course 3. Set class size 4. Assign teacher 5. Grade student 6. Back");
                 }
                 case 1 -> {
                     currentState = state.ADD_STUDENT_TO_COURSE;
@@ -215,16 +286,21 @@ public class Controller {
                     return;
                 }
                 case 3 -> {
-                    currentState = state.ASSIGN_COURSE_TO_TEACHER;
+                    currentState = state.COURSE_SET_SIZE;
                     return;
                 }
 
                 case 4 -> {
-                    currentState = state.GRADE_STUDENT;
+                    currentState = state.ASSIGN_COURSE_TO_TEACHER;
                     return;
                 }
 
                 case 5 -> {
+                    currentState = state.GRADE_STUDENT;
+                    return;
+                }
+
+                case 6 -> {
                     System.out.println("Exiting...");
                     Thread.sleep(500);
                     currentState = state.COURSES;
@@ -279,7 +355,7 @@ public class Controller {
     }
 
     public void addStudentToCourse() throws InterruptedException {
-        if (currentCourse.getClassList().size() < 20) {
+        if (currentCourse.getClassList().size() < currentCourse.getCourseSize()) {
             view.printAllStudents(model);
             view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
             int selection;
@@ -354,7 +430,7 @@ public class Controller {
         int grade;
         while (true) {
             grade = pseudoScanner();
-            if(grade < 7 && grade > 0){
+            if (grade < 7 && grade > 0) {
                 break;
             } else if (grade == 7) {
                 currentState = state.GRADE_STUDENT;
@@ -456,7 +532,7 @@ public class Controller {
         }
     }
 
-    public void searchStudent() throws IOException {
+    public void searchStudent() {
         if (!model.studentList.isEmpty()) {
             view.printAllStudents(model);
             view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
@@ -523,9 +599,7 @@ public class Controller {
 
                 }
             }
-            case 4 ->
-                currentState = state.SEARCHING_STUDENT;
-
+            case 4 -> currentState = state.SEARCHING_STUDENT;
 
 
         }
@@ -649,7 +723,7 @@ public class Controller {
                 currentState = state.TEACHER_VIEW;
                 return;
 
-        } else {
+            } else {
                 view.printMessage("Not a valid number");
             }
         }
@@ -717,7 +791,6 @@ public class Controller {
             currentState = state.COURSE_VIEW;
         }
     }
-
 
 
     public void editTeacher(Teacher currentTeacher) {
