@@ -61,7 +61,7 @@ public class Controller {
                 case STUDENTS -> students();
                 case SEARCHING_STUDENT -> searchStudent();
                 case STUDENT_VIEW -> studentView();
-                case EDITING_STUDENT -> editStudent(currentStudent);
+                case EDITING_STUDENT -> editStudent();
                 case ADD_STUDENT_TO_COURSE -> addStudentToCourse();
                 case REMOVE_STUDENT_FROM_COURSE -> removeStudentFromCourse();
                 case GRADE_STUDENT -> gradeStudent();
@@ -71,7 +71,7 @@ public class Controller {
                 case TEACHER_VIEW -> teacherView();
                 case ADDING_TEACHER -> createTeacher();
                 case SELECT_TEACHER -> selectTeacher();
-                case EDITING_TEACHER -> editTeacher(currentTeacher);
+                case EDITING_TEACHER -> editTeacher();
                 ///
                 case COURSES -> courses();
                 case COURSE_SET_SIZE -> setCourseClassSize();
@@ -503,7 +503,7 @@ public class Controller {
         }
     }
 
-    public void editStudent(Student currentStudent) {
+    public void editStudent() {
         view.printMessage("1. Edit first name 2. Edit last name 3. Edit email address 4. Back");
         int selection = pseudoScanner();
         switch (selection) {
@@ -794,7 +794,7 @@ public class Controller {
     }
 
 
-    public void editTeacher(Teacher currentTeacher) {
+    public void editTeacher() {
         view.printMessage("1. Edit first name 2. Edit last name 3. Edit email address 4. Edit password 5. Back");
         int selection = pseudoScanner();
         switch (selection) {
