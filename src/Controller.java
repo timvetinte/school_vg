@@ -106,6 +106,7 @@ public class Controller {
         if (loginEmail.equalsIgnoreCase("createstudents")) {
             model.studentList.clear();
             model.courses.get(1).getClassList().clear();
+            model.courses.get(1).setCourseSize(20);
             Student.createManyStudents(model.studentList);
             view.printMessage("ADDED 20 STUDENTS");
             for (Student s : model.studentList) {
