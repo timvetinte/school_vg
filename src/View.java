@@ -1,14 +1,16 @@
 public class View {
 
 
-    public View(Model model) {
-
-    }
-
+    private Model model;
     private int index = 1;
     boolean firstIntro = true;
 
-    public void printAllStudents(Model model) {
+    public View(Model model) {
+        this.model = model;
+    }
+
+
+    public void printAllStudents() {
         if (model.getStudentList() != null) {
             for (Student s : model.getStudentList()) {
                 System.out.println(index + ". " + s.getFirstName() + " " + s.getLastName());
@@ -21,7 +23,7 @@ public class View {
         }
     }
 
-    public void printAllCourses(Model model) {
+    public void printAllCourses() {
         for (Course c : model.getCourses()) {
             System.out.println(index + ". " + c.getCourseName());
             index++;
@@ -32,7 +34,7 @@ public class View {
         index = 1;
     }
 
-    public void printAllTeachers(Model model) {
+    public void printAllTeachers() {
         if (model.getTeacherList() != null) {
             for (Teacher t : model.getTeacherList()) {
                 System.out.println(index + ". " + t.getFirstName() + " " + t.getLastName());
@@ -73,35 +75,36 @@ public class View {
             }
         }
     }
-    public int getCourseAverage(Course course){
+
+    public int getCourseAverage(Course course) {
         int courseAverage = 0;
         int peopleWithGrades = 0;
         boolean divideOk = false;
-        for(Student s: course.getClassList()){
-            if(s.getGrade(course) != 0){
+        for (Student s : course.getClassList()) {
+            if (s.getGrade(course) != 0) {
                 courseAverage = courseAverage + s.getGrade(course);
                 peopleWithGrades++;
                 divideOk = true;
             }
         }
-        if(divideOk) {
+        if (divideOk) {
             courseAverage = courseAverage / peopleWithGrades;
         }
         return courseAverage;
     }
 
-    public int getStudentAverage(Student student){
+    public int getStudentAverage(Student student) {
         int studentAverage = 0;
         int gradedCourses = 0;
         boolean divideOk = false;
-        for(Grade g : student.getGrades()){
-            if(g.getGrade()!=0 && student.getGrades()!=null){
+        for (Grade g : student.getGrades()) {
+            if (g.getGrade() != 0 && student.getGrades() != null) {
                 studentAverage = studentAverage + g.getGrade();
                 gradedCourses++;
                 divideOk = true;
             }
         }
-        if(divideOk) {
+        if (divideOk) {
             studentAverage = studentAverage / gradedCourses;
         }
         return studentAverage;
@@ -120,8 +123,8 @@ public class View {
                 index++;
             }
             System.out.println("--------------------");
-            if(getCourseAverage(course)!=0) {
-                System.out.println("Course average grade: (" + gradeToString(getCourseAverage(course)) +")");
+            if (getCourseAverage(course) != 0) {
+                System.out.println("Course average grade: (" + gradeToString(getCourseAverage(course)) + ")");
             }
             index = 1;
         } else {
@@ -129,19 +132,19 @@ public class View {
         }
     }
 
-    public void printGradeAlternatives(){
+    public void printGradeAlternatives() {
         System.out.println("1. A \n2. B \n3. C\n4. D\n5. E\n6. F\n7. To exit.");
     }
 
-    public void printCourseStudents(Course course){
+    public void printCourseStudents(Course course) {
         if (!course.getClassList().isEmpty()) {
             for (Student s : course.getClassList()) {
                 System.out.println(index + ". " + s.getFirstName() + " " + s.getLastName() + " (" + gradeToString(s.getGrade(course)) + ")");
                 index++;
             }
             index = 1;
-            if(getCourseAverage(course)!=0) {
-                System.out.println("Course average grade: (" + gradeToString(getCourseAverage(course)) +")");
+            if (getCourseAverage(course) != 0) {
+                System.out.println("Course average grade: (" + gradeToString(getCourseAverage(course)) + ")");
             }
         } else {
             System.out.println("Course is empty, add students.");
@@ -152,7 +155,7 @@ public class View {
         System.out.println("Selected student: " + student.getFirstName() + " " + student.getLastName());
         System.out.println("Student ID: " + student.getStudentID());
         System.out.println("Student email: " + student.getEmailAddress());
-        if(getStudentAverage(student)!=0){
+        if (getStudentAverage(student) != 0) {
             System.out.println("Average grade: " + gradeToString(getStudentAverage(student)));
         }
     }
@@ -168,7 +171,7 @@ public class View {
 
     }
 
-    public void printOnOneLine(String messageText){
+    public void printOnOneLine(String messageText) {
         System.out.print(messageText);
     }
 
@@ -193,7 +196,7 @@ public class View {
             System.out.println("              ▄▌         ");
             Thread.sleep(sleepAmount);
             System.out.println();
-            firstIntro=false;
+            firstIntro = false;
         } else {
             System.out.println("\n\n\n");
             System.out.println("▄▖  ▌     ▜              ");
@@ -210,7 +213,7 @@ public class View {
 
     }
 
-    public void studentFindCourses(Student student, Model model) {
+    public void studentFindCourses(Student student) {
         int index = 1;
         boolean studentHasCourse = false;
         for (Course c : model.courses) {

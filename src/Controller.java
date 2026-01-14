@@ -178,7 +178,7 @@ public class Controller {
 
 
     public void courses() throws InterruptedException {
-        view.printAllCourses(model);
+        view.printAllCourses();
         view.printMessage("Input a number matching a course, " + (model.courses.size() + 1) + " to create a new course or " + (model.courses.size() + 2) + " to exit.");
         int selection;
 
@@ -197,7 +197,7 @@ public class Controller {
             }
             view.printMessage("Not a valid number, try again");
             Thread.sleep(1000);
-            view.printAllCourses(model);
+            view.printAllCourses();
             view.printMessage("Input a number matching a course or " + (model.courses.size() + 1) + " to exit: ");
         }
 
@@ -357,7 +357,7 @@ public class Controller {
 
     public void addStudentToCourse() throws InterruptedException {
         if (currentCourse.getClassList().size() < currentCourse.getCourseSize()) {
-            view.printAllStudents(model);
+            view.printAllStudents();
             view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
             int selection;
             while (true) {
@@ -535,7 +535,7 @@ public class Controller {
 
     public void searchStudent() {
         if (!model.studentList.isEmpty()) {
-            view.printAllStudents(model);
+            view.printAllStudents();
             view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
             int selection;
 
@@ -548,7 +548,7 @@ public class Controller {
                     return;
                 }
                 view.printMessage("Not a valid number, try again");
-                view.printAllStudents(model);
+                view.printAllStudents();
                 view.printMessage("Input a number matching a student or " + (model.studentList.size() + 1) + " to exit: ");
             }
 
@@ -570,7 +570,7 @@ public class Controller {
             case 1 -> currentState = state.EDITING_STUDENT;
 
             case 2 -> {
-                view.studentFindCourses(currentStudent, model);
+                view.studentFindCourses(currentStudent);
                 view.printMessage("Press enter to exit.");
                 scanner.nextLine();
             }
@@ -682,7 +682,7 @@ public class Controller {
 
     public void selectTeacher() {
         if (!model.teacherList.isEmpty()) {
-            view.printAllTeachers(model);
+            view.printAllTeachers();
             view.printMessage("Input a number matching a teacher or " + (model.teacherList.size() + 1) + " to exit: ");
             int selection;
 
@@ -695,7 +695,7 @@ public class Controller {
                     return;
                 }
                 view.printMessage("Not a valid number, try again");
-                view.printAllTeachers(model);
+                view.printAllTeachers();
                 view.printMessage("Input a number matching a teacher or " + (model.teacherList.size() + 1) + " to exit: ");
             }
 
@@ -710,7 +710,7 @@ public class Controller {
 
     public void assignTeacherToCourse() {
         view.printMessage("Choose a course to assign " + currentTeacher.getFirstName() + " to.");
-        view.printAllCourses(model);
+        view.printAllCourses();
         int selection;
         while (true) {
             selection = pseudoScanner();
@@ -767,7 +767,7 @@ public class Controller {
     public void assignCourseToTeacher() throws InterruptedException {
         if (!model.teacherList.isEmpty()) {
             view.printMessage("Choose a teacher to assign " + currentCourse.getCourseName() + " to.");
-            view.printAllTeachers(model);
+            view.printAllTeachers();
             int selection;
             while (true) {
                 selection = pseudoScanner();
